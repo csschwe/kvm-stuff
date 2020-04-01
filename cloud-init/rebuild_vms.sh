@@ -33,4 +33,5 @@ sudo virt-install \
     --disk path=${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE},format=qcow2 \
     --disk ${INSTANCE_IMAGE_PATH}/${CLOUD_INIT_FILE},device=cdrom \
     --import \
+    --autorestart \
     --noautoconsole
