@@ -1,0 +1,12 @@
+#cloud-config
+users:
+  - name: mgmt-account
+    ssh-authorized-keys:
+      - ssh-rsa KEYGOESHERE
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    shell: /bin/bash
+    system: true
+runcmd:
+  - echo "AllowUsers mgmt-account" >> /etc/ssh/sshd_config
+  - systemctl restart sshd
