@@ -23,11 +23,19 @@
     "provisioners": [
         {
             "type": "shell",
-            "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
             "remote_folder": "/tmp",
             "inline": [
-                "/usr/bin/apt-get update",
-                "DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 dist-upgrade"
+                "sudo /usr/bin/apt-get update",
+                "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 dist-upgrade",
+		"echo 'net.bridge.bridge-nf-call-ip6tables = 1' | sudo tee -a /etc/sysctl.d/k8s.conf",
+		"echo 'net.bridge.bridge-nf-call-iptables = 1'  | sudo tee -a /etc/sysctl.d/k8s.conf",
+                "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
+		"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+		"curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
+		"echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable' | sudo tee -a /etc/apt/sources.list.d/docker-ce.list",
+		"echo 'deb https://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee -a /etc/apt/sources.list.d/kubernetes.list",
+                "sudo /usr/bin/apt-get update",
+                "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install docker-ce docker-ce-cli containerd.io kubelet kubeadm kubectl"
             ]
         },
 
@@ -35,6 +43,7 @@
             "type": "shell",
             "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
             "remote_folder": "/tmp",
+	    "valid_exit_codes": [0,8],
             "inline": [
                 "/usr/bin/apt-get clean",
                 "rm -r /etc/apparmor.d/cache/* /etc/apparmor.d/cache/.features /etc/netplan/50-cloud-init.yaml /etc/ssh/ssh_host* /etc/sudoers.d/90-cloud-init-users",
@@ -49,8 +58,7 @@
                 "rm /var/lib/update-notifier/fsck-at-reboot /var/lib/update-notifier/hwe-eol",
                 "find /var/log -type f -exec rm {} +",
                 "rm -r /tmp/* /tmp/.*-unix /var/tmp/*",
-                "for i in group gshadow passwd shadow subuid subgid; do mv /etc/$i- /etc/$i; done",
-                "rm -r /home/packer",
+                "userdel --force --remove packer",
                 "/bin/sync",
                 "/sbin/fstrim -v /"
             ]
