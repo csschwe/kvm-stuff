@@ -6,10 +6,14 @@ https://docs.ansible.com/ansible/latest/modules/virt_module.html <br>
 https://cloudinit.readthedocs.io/en/latest/index.html <br>
 
 
+Load an Ubuntu 18.04 server
+
+## Install packages to support KVM and cloud-init
 ```
 sudo apt-get install cloud-utils qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils qemu-utils genisoimage virtinst
 ```
 
+## Setup a Bridge Interface
 ```
 # /etc/netplan/01-netcfg.yaml
 network:
@@ -30,8 +34,9 @@ network:
         addresses: [192.168.1.1, 8.8.8.8]
 ```
 
-# Get packer and build custom image
+# Get Hashicorp packer and build custom image
 ```
+cd packer
 wget https://releases.hashicorp.com/packer/1.5.5/packer_1.5.5_linux_amd64.zip
 unzip packer_1.5.5_linux_amd64.zip
 sudo ./packer build ubuntu_build.json
@@ -42,6 +47,7 @@ sudo mv output-qemu/packer-qemu /var/lib/libvirt/images/base/ubuntu-18.04-server
 ```
 
 # Build VMs
+Modify the network-config file with the correct network information for your vminstance
 ```
 cd cloud-init
 rebuild_vms.sh
