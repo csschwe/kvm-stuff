@@ -19,7 +19,7 @@ sudo qemu-img create \
     -f qcow2 \
     -o backing_file=${BACKING_FILE} ${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE}
 
-sudo qemu-img resize ${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE} 10G
+sudo qemu-img resize ${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE} 20G
 
 sudo virt-install \
     --connect qemu:///system \
@@ -33,5 +33,5 @@ sudo virt-install \
     --disk path=${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE},format=qcow2 \
     --disk ${INSTANCE_IMAGE_PATH}/${CLOUD_INIT_FILE},device=cdrom \
     --import \
-    --autorestart \
+    --autostart \
     --noautoconsole
