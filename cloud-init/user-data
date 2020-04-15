@@ -10,3 +10,4 @@ users:
 runcmd:
   - echo "AllowUsers mgmt-account" >> /etc/ssh/sshd_config
   - systemctl restart sshd
+  - chown mgmt-account:mgmt-account /home/mgmt-account
