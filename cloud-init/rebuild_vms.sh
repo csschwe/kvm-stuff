@@ -1,7 +1,7 @@
 INSTANCE_HOSTNAME=vminstance-1
 INSTANCE_IMAGE=${INSTANCE_HOSTNAME}.qcow2
 INSTANCE_IMAGE_PATH=/var/lib/libvirt/images/${INSTANCE_HOSTNAME}
-BACKING_FILE=/var/lib/libvirt/images/base/ubuntu-18.04-server-cloudimg-amd64-cusomized.qcow2
+BACKING_FILE=/var/lib/libvirt/images/base/ubuntu-20.04-server-cloudimg-amd64-cusomized.qcow2
 CLOUD_INIT_FILE=${INSTANCE_HOSTNAME}-cidata.iso
 NETWORK_FILE=network-config-${INSTANCE_HOSTNAME}
 
@@ -17,7 +17,8 @@ sudo cp ${CLOUD_INIT_FILE} ${INSTANCE_IMAGE_PATH}
 
 sudo qemu-img create \
     -f qcow2 \
-    -o backing_file=${BACKING_FILE} ${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE}
+    -o backing_file=${BACKING_FILE} ${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE} \
+    -o backing_fmt=qcow2
 
 sudo qemu-img resize ${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE} 20G
 
@@ -29,7 +30,7 @@ sudo virt-install \
     --vcpus=1 \
     --network bridge=br0 \
     --os-type linux \
-    --os-variant ubuntu18.04 \
+    --os-variant ubuntu20.04 \
     --disk path=${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE},format=qcow2 \
     --disk ${INSTANCE_IMAGE_PATH}/${CLOUD_INIT_FILE},device=cdrom \
     --import \
