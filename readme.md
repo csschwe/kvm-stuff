@@ -37,13 +37,13 @@ network:
 # Get Hashicorp packer and build custom image
 ```
 cd packer
-wget https://releases.hashicorp.com/packer/1.5.5/packer_1.5.5_linux_amd64.zip
+wget https://releases.hashicorp.com/packer/1.6.4/packer_1.6.4_linux_amd64.zip
 unzip packer_1.5.5_linux_amd64.zip
 sudo ./packer build ubuntu_build.json
 
 sudo mkdir -p /var/lib/libvirt/images/base
 
-sudo mv output-qemu/packer-qemu /var/lib/libvirt/images/base/ubuntu-18.04-server-cloudimg-amd64-cusomized.qcow2
+sudo mv output-qemu/packer-qemu /var/lib/libvirt/images/base/ubuntu-20.04-server-cloudimg-amd64-cusomized.qcow2
 ```
 
 # Build VMs

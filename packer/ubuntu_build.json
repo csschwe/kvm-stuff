@@ -1,68 +1,72 @@
 {
-    "builders": [
-        {
-            "type": "qemu",
-            "iso_url": "http://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img",
-            "iso_checksum_url": "http://cloud-images.ubuntu.com/releases/focal/release/SHA256SUMS",
-            "iso_checksum_type": "sha256",
-	    "accelerator": "kvm",
-            "disk_image": true,
-            "disk_size": 5120,
-            "disk_interface": "virtio-scsi",
-            "disk_discard": "unmap",
-	    "format": "qcow2",
-            "ssh_username": "packer",
-            "ssh_password": "packerpassword",
-            "http_directory": "cloud-data",
-            "qemuargs": [
-                ["-smbios", "type=1,serial=ds=nocloud-net;instance-id=packer;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/"]
-            ],
-            "use_default_display": true
-        }
-    ],
-    "provisioners": [
-        {
-            "type": "shell",
-            "remote_folder": "/tmp",
-            "inline": [
-                "sudo /usr/bin/apt-get update",
-                "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 dist-upgrade",
-		"echo 'net.bridge.bridge-nf-call-ip6tables = 1' | sudo tee -a /etc/sysctl.d/k8s.conf",
-		"echo 'net.bridge.bridge-nf-call-iptables = 1'  | sudo tee -a /etc/sysctl.d/k8s.conf",
-                "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
-		"curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
-		"curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
-		"echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable' | sudo tee -a /etc/apt/sources.list.d/docker-ce.list",
-		"echo 'deb https://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee -a /etc/apt/sources.list.d/kubernetes.list",
-                "sudo /usr/bin/apt-get update",
-                "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install docker-ce docker-ce-cli containerd.io kubelet kubeadm kubectl",
-                "sudo apt-mark hold kubelet kubeadm kubectl docker.io"
-            ]
-        },
-
-        {
-            "type": "shell",
-            "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
-            "remote_folder": "/tmp",
-	    "valid_exit_codes": [0,8],
-            "inline": [
-                "/usr/bin/apt-get clean",
-                "rm -rf /etc/apparmor.d/cache/* /etc/apparmor.d/cache/.features /etc/netplan/50-cloud-init.yaml /etc/ssh/ssh_host* /etc/sudoers.d/90-cloud-init-users",
-                "/usr/bin/truncate --size 0 /etc/machine-id",
-                "/usr/bin/gawk -i inplace '/PasswordAuthentication/ { gsub(/yes/, \"no\") }; { print }' /etc/ssh/sshd_config",
-                "rm -rf /root/.ssh",
-                "rm -f /snap/README",
-                "find /usr/share/netplan -name __pycache__ -exec rm -r {} +",
-                "rm -rf /var/cache/pollinate/seeded /var/cache/snapd/* /var/cache/motd-news",
-                "rm -rf /var/lib/cloud /var/lib/dbus/machine-id /var/lib/private /var/lib/systemd/timers /var/lib/systemd/timesync /var/lib/systemd/random-seed",
-                "rm -f /var/lib/ubuntu-release-upgrader/release-upgrade-available",
-                "rm -f /var/lib/update-notifier/fsck-at-reboot /var/lib/update-notifier/hwe-eol",
-                "find /var/log -type f -exec rm {} +",
-                "rm -rf /tmp/* /tmp/.*-unix /var/tmp/*",
-                "userdel --force --remove packer",
-                "/bin/sync",
-                "/sbin/fstrim -v /"
-            ]
-        }
-    ]
+  "builders": [
+    {
+      "accelerator": "kvm",
+      "disk_discard": "unmap",
+      "disk_image": true,
+      "disk_interface": "virtio-scsi",
+      "disk_size": "5120M",
+      "format": "qcow2",
+      "http_directory": "cloud-data",
+      "iso_checksum": "file:http://cloud-images.ubuntu.com/releases/focal/release/SHA256SUMS",
+      "iso_url": "http://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img",
+      "qemuargs": [
+        [
+          "-smbios",
+          "type=1,serial=ds=nocloud-net;instance-id=packer;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/"
+        ]
+      ],
+      "ssh_password": "packerpassword",
+      "ssh_username": "packer",
+      "type": "qemu",
+      "use_default_display": true
+    }
+  ],
+  "provisioners": [
+    {
+      "inline": [
+        "sudo /usr/bin/apt-get update",
+        "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 dist-upgrade",
+        "echo 'net.bridge.bridge-nf-call-ip6tables = 1' | sudo tee -a /etc/sysctl.d/k8s.conf",
+        "echo 'net.bridge.bridge-nf-call-iptables = 1'  | sudo tee -a /etc/sysctl.d/k8s.conf",
+        "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install apt-transport-https ca-certificates curl gnupg-agent software-properties-common",
+        "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+        "curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -",
+        "echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable' | sudo tee -a /etc/apt/sources.list.d/docker-ce.list",
+        "echo 'deb https://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee -a /etc/apt/sources.list.d/kubernetes.list",
+        "sudo /usr/bin/apt-get update",
+        "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install docker-ce docker-ce-cli containerd.io kubelet kubeadm kubectl",
+        "sudo apt-mark hold kubelet kubeadm kubectl docker.io"
+      ],
+      "remote_folder": "/tmp",
+      "type": "shell"
+    },
+    {
+      "execute_command": "sudo sh -c '{{ .Vars }} {{ .Path }}'",
+      "inline": [
+        "/usr/bin/apt-get clean",
+        "rm -rf /etc/apparmor.d/cache/* /etc/apparmor.d/cache/.features /etc/netplan/50-cloud-init.yaml /etc/ssh/ssh_host* /etc/sudoers.d/90-cloud-init-users",
+        "/usr/bin/truncate --size 0 /etc/machine-id",
+        "/usr/bin/gawk -i inplace '/PasswordAuthentication/ { gsub(/yes/, \"no\") }; { print }' /etc/ssh/sshd_config",
+        "rm -rf /root/.ssh",
+        "rm -f /snap/README",
+        "find /usr/share/netplan -name __pycache__ -exec rm -r {} +",
+        "rm -rf /var/cache/pollinate/seeded /var/cache/snapd/* /var/cache/motd-news",
+        "rm -rf /var/lib/cloud /var/lib/dbus/machine-id /var/lib/private /var/lib/systemd/timers /var/lib/systemd/timesync /var/lib/systemd/random-seed",
+        "rm -f /var/lib/ubuntu-release-upgrader/release-upgrade-available",
+        "rm -f /var/lib/update-notifier/fsck-at-reboot /var/lib/update-notifier/hwe-eol",
+        "find /var/log -type f -exec rm {} +",
+        "rm -rf /tmp/* /tmp/.*-unix /var/tmp/*",
+        "userdel --force --remove packer",
+        "/bin/sync",
+        "/sbin/fstrim -v /"
+      ],
+      "remote_folder": "/tmp",
+      "type": "shell",
+      "valid_exit_codes": [
+        0,
+        8
+      ]
+    }
+  ]
 }
