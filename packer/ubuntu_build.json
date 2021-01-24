@@ -35,8 +35,11 @@
         "echo 'deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable' | sudo tee -a /etc/apt/sources.list.d/docker-ce.list",
         "echo 'deb https://apt.kubernetes.io/ kubernetes-xenial main' | sudo tee -a /etc/apt/sources.list.d/kubernetes.list",
         "sudo /usr/bin/apt-get update",
-        "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install docker-ce docker-ce-cli containerd.io kubelet kubeadm kubectl",
-        "sudo apt-mark hold kubelet kubeadm kubectl docker.io"
+        "sudo DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get -y -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' --quiet=2 install containerd.io kubelet kubeadm kubectl",
+        "sudo apt-mark hold kubelet kubeadm kubectl containerd.io",
+        "sudo mkdir -p /etc/containerd",
+        "sudo containerd config default | sudo tee /etc/containerd/config.toml",
+        "sudo sed -i '/containerd.runtimes.runc.options/ a \\             SystemdCgroup = true'"
       ],
       "remote_folder": "/tmp",
       "type": "shell"
@@ -57,6 +60,7 @@
         "rm -f /var/lib/update-notifier/fsck-at-reboot /var/lib/update-notifier/hwe-eol",
         "find /var/log -type f -exec rm {} +",
         "rm -rf /tmp/* /tmp/.*-unix /var/tmp/*",
+        "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true",
         "userdel --force --remove packer",
         "/bin/sync",
         "/sbin/fstrim -v /"

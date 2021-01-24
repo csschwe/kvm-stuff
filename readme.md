@@ -14,6 +14,28 @@ sudo apt-get install cloud-utils qemu-kvm libvirt-bin ubuntu-vm-builder bridge-u
 ```
 
 ## Setup a Bridge Interface
+### Debian network interfaces
+```
+# /etc/network/interfaces
+# https://wiki.debian.org/BridgeNetworkConnections
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo br0
+iface lo inet loopback
+
+# Set up interfaces manually, avoiding conflicts with, e.g., network manager
+iface enp7s0 inet manual
+
+# Bridge setup
+iface br0 inet static
+  bridge_ports enp7s0
+    address 192.168.1.50
+    broadcast 192.168.1.255
+    netmask 255.255.255.0
+    gateway 192.168.1.1
+```
+### Ubuntu netplan
 ```
 # /etc/netplan/01-netcfg.yaml
 network:
@@ -37,8 +59,8 @@ network:
 # Get Hashicorp packer and build custom image
 ```
 cd packer
-wget https://releases.hashicorp.com/packer/1.6.4/packer_1.6.4_linux_amd64.zip
-unzip packer_1.5.5_linux_amd64.zip
+wget https://releases.hashicorp.com/packer/1.6.6/packer_1.6.6_linux_amd64.zip
+unzip packer_1.6.6_linux_amd64.zip
 sudo ./packer build ubuntu_build.json
 
 sudo mkdir -p /var/lib/libvirt/images/base
