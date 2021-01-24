@@ -2,3 +2,4 @@
 /packer/packer*zip
 /packer/packer_cache
 /packer/output-qemu
+/cloud-init/*.iso

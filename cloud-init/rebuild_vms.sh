@@ -26,11 +26,11 @@ sudo virt-install \
     --connect qemu:///system \
     --virt-type kvm \
     --name ${INSTANCE_HOSTNAME} \
-    --ram 1024 \
-    --vcpus=1 \
+    --ram 2048 \
+    --vcpus=2 \
     --network bridge=br0 \
     --os-type linux \
-    --os-variant ubuntu20.04 \
+    --os-variant ubuntu18.04 \
     --disk path=${INSTANCE_IMAGE_PATH}/${INSTANCE_IMAGE},format=qcow2 \
     --disk ${INSTANCE_IMAGE_PATH}/${CLOUD_INIT_FILE},device=cdrom \
     --import \
