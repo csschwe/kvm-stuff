@@ -26,7 +26,7 @@ sudo virt-install \
     --connect qemu:///system \
     --virt-type kvm \
     --name ${INSTANCE_HOSTNAME} \
-    --ram 2048 \
+    --ram 4096 \
     --vcpus=2 \
     --network bridge=br0 \
     --os-type linux \
